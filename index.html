@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Kupon A4 - 12 Kupon (Sobekan Panitia)</title>
+    <!-- HTML2Canvas untuk unduh gambar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #059669;
+            --primary-hover: #047857;
+            --bg-color: #e5e7eb;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #333;
+            padding: 15px;
+        }
+
+        .main-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Panel Form Input */
+        .panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        h2 {
+            margin-bottom: 12px;
+            color: #1f2937;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 6px;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #059669;
+            margin: 12px 0 6px 0;
+            text-transform: uppercase;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 0.75rem;
+            color: #4b5563;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 32px;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 5px;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            text-align: center;
+        }
+
+        .btn-print {
+            background-color: #059669;
+        }
+
+        .btn-print:hover {
+            background-color: #047857;
+        }
+
+        .btn-download {
+            background-color: #0284c7;
+        }
+
+        .btn-download:hover {
+            background-color: #0369a1;
+        }
+
+        /* PREVIEW & CETAK LEMBAR A4 */
+        .preview-wrapper {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
+
+        /* Ukuran Kertas A4 Portrait: 210mm x 297mm */
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            padding: 8mm 7mm;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 4mm;
+            box-sizing: border-box;
+        }
+
+        /* 1 Blok Kotak Kupon (Kupon Utama + Sobekan) */
+        .coupon-block {
+            border: 1px dashed #9ca3af;
+            border-radius: 6px;
+            display: flex;
+            background: linear-gradient(135deg, #059669, #0f766e);
+            color: #ffffff;
+            overflow: hidden;
+            position: relative;
+            height: 42mm;
+            /* Pas 6 baris di A4 */
+        }
+
+        /* Kupon Peserta (Kiri) */
+        .coupon-main {
+            flex: 2.1;
+            padding: 6px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Garis Sobekan Putus-putus */
+        .coupon-divider {
+            width: 0;
+            border-left: 1.5px dashed rgba(255, 255, 255, 0.7);
+            position: relative;
+        }
+
+        .coupon-divider::before {
+            content: '✂';
+            position: absolute;
+            top: 50%;
+            left: -6px;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: white;
+        }
+
+        /* Kupon Sobekan Panitia (Kanan) */
+        .coupon-stub {
+            flex: 1;
+            padding: 5px 8px;
+            background: rgba(0, 0, 0, 0.18);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        /* Detail Teks */
+        .logo-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo-row img {
+            max-height: 22px;
+            max-width: 60px;
+            object-fit: contain;
+        }
+
+        .inst-name {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .event-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            line-height: 1.1;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .event-sub {
+            font-size: 0.6rem;
+            opacity: 0.9;
+        }
+
+        .event-desc {
+            font-size: 0.55rem;
+            opacity: 0.85;
+            line-height: 1.1;
+            margin-top: 2px;
+        }
+
+        .event-date {
+            font-size: 0.55rem;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1px 4px;
+            border-radius: 3px;
+            width: fit-content;
+        }
+
+        .stub-badge {
+            font-size: 0.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1px 3px;
+            border-radius: 2px;
+        }
+
+        .stub-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .stub-no-box {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px dashed rgba(255, 255, 255, 0.6);
+            padding: 2px;
+            border-radius: 4px;
+            margin: 2px 0;
+        }
+
+        .stub-no {
+            font-size: 0.8rem;
+            font-weight: 900;
+            font-family: monospace;
+        }
+
+        .stub-input {
+            font-size: 0.52rem;
+            text-align: left;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 2px;
+            line-height: 1.2;
+        }
+
+        /* CETAK KERTAS A4 */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+
+            .main-layout {
+                display: block;
+            }
+
+            .panel {
+                display: none;
+            }
+
+            .preview-wrapper {
+                overflow: visible;
+            }
+
+            .a4-page {
+                box-shadow: none;
+                margin: 0;
+                width: 210mm;
+                height: 297mm;
+                padding: 6mm;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-layout">
+        <!-- Form Pengaturan -->
+        <div class="panel">
+            <h2>Atur 12 Kupon A4</h2>
+
+            <div class="section-title">1. Informasi Acara</div>
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label for="inputLogo">Logo Lembaga/MI</label>
+                    <input type="file" id="inputLogo" accept="image/*">
+                </div>
+                <div class="form-group full">
+                    <label for="inputInstansi">Nama Lembaga</label>
+                    <input type="text" id="inputInstansi" value="MI MINHAJUL UNWAN">
+                </div>
+                <div class="form-group full">
+                    <label for="inputTitle">Nama Acara</label>
+                    <input type="text" id="inputTitle" value="JALAN SEHAT HARI SANTRI">
+                </div>
+                <div class="form-group full">
+                    <label for="inputSubtitle">Sub-Judul / Tema</label>
+                    <input type="text" id="inputSubtitle" value="Jihad Santri Jayakan Negeri">
+                </div>
+                <div class="form-group full">
+                    <label for="inputDesc">Hadiah / Ketentuan</label>
+                    <textarea id="inputDesc" rows="2">Doorprize: Sepeda Gunung, Kipas Angin, & Tabungan.</textarea>
+                </div>
+                <div class="form-group full">
+                    <label for="inputDate">Tanggal & Lokasi</label>
+                    <input type="text" id="inputDate" value="22 Oktober 2026 | Halaman MI">
+                </div>
+            </div>
+
+            <div class="section-title">2. Penomoran Seri</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="inputStartNo">No. Awal</label>
+                    <input type="number" id="inputStartNo" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="inputPrefix">Prefix / Teks</label>
+                    <input type="text" id="inputPrefix" value="No. ">
+                </div>
+            </div>
+
+            <div class="section-title">3. Warna Kupon</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="inputBg1">Warna Utama</label>
+                    <input type="color" id="inputBg1" value="#059669">
+                </div>
+                <div class="form-group">
+                    <label for="inputBg2">Warna Gradasi</label>
+                    <input type="color" id="inputBg2" value="#0f766e">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-print" onclick="window.print()">🖨️ Cetak A4</button>
+                <button class="btn btn-download" onclick="downloadPNG()">📥 Download PNG</button>
+            </div>
+        </div>
+
+        <!-- Preview Lembar A4 -->
+        <div class="preview-wrapper">
+            <div id="a4Page" class="a4-page">
+                <!-- Generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputInstansi = document.getElementById('inputInstansi');
+        const inputTitle = document.getElementById('inputTitle');
+        const inputSubtitle = document.getElementById('inputSubtitle');
+        const inputDesc = document.getElementById('inputDesc');
+        const inputDate = document.getElementById('inputDate');
+        const inputStartNo = document.getElementById('inputStartNo');
+        const inputPrefix = document.getElementById('inputPrefix');
+        const inputLogo = document.getElementById('inputLogo');
+        const inputBg1 = document.getElementById('inputBg1');
+        const inputBg2 = document.getElementById('inputBg2');
+        const a4Page = document.getElementById('a4Page');
+
+        let logoSrc = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='30' viewBox='0 0 80 30'%3E%3Crect width='80' height='30' fill='%23ffffff' opacity='0.3' rx='4'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-size='8' font-family='sans-serif'%3ELOGO MI%3C/text%3E%3C/svg%3E";
+
+        function renderCoupons() {
+            a4Page.innerHTML = '';
+            const startNum = parseInt(inputStartNo.value) || 1;
+            const prefix = inputPrefix.value || 'No. ';
+
+            for (let i = 0; i < 6; i++) {
+                const currentNo = prefix + String(startNum + i).padStart(4, '0');
+
+                const block = document.createElement('div');
+                block.className = 'coupon-block';
+                block.style.background = `linear-gradient(135deg, ${inputBg1.value}, ${inputBg2.value})`;
+
+                block.innerHTML = `
+                    <div class="coupon-main">
+                        <div class="logo-row">
+                            <img src="${logoSrc}" alt="Logo">
+                            <div class="inst-name">${inputInstansi.value}</div>
+                        </div>
+                        <div>
+                            <div class="event-title">${inputTitle.value}</div>
+                            <div class="event-sub">${inputSubtitle.value}</div>
+                            <div class="event-desc">${inputDesc.value}</div>
+                        </div>
+                        <div class="event-date">📅 ${inputDate.value}</div>
+                    </div>
+
+                    <div class="coupon-divider"></div>
+
+                    <div class="coupon-stub">
+                        <div>
+                            <span class="stub-badge">PANITIA</span>
+                            <div class="stub-title">${inputTitle.value}</div>
+                        </div>
+                        <div class="stub-no-box">
+                            <div style="font-size:0.45rem; opacity:0.85;">NO. UNDIAN</div>
+                            <div class="stub-no">${currentNo}</div>
+                        </div>
+                        <div class="stub-input">
+                            <div>Nama: ..........</div>
+                            <div>Kelas: .........</div>
+                        </div>
+                    </div>
+                `;
+
+                a4Page.appendChild(block);
+            }
+        }
+
+        [inputInstansi, inputTitle, inputSubtitle, inputDesc, inputDate, inputStartNo, inputPrefix, inputBg1, inputBg2].forEach(elem => {
+            elem.addEventListener('input', renderCoupons);
+        });
+
+        inputLogo.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (evt) {
+                    logoSrc = evt.target.result;
+                    renderCoupons();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function downloadPNG() {
+            html2canvas(a4Page, {
+                scale: 2,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Cetak_12_Kupon_A4_${inputStartNo.value}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        renderCoupons();
+    </script>
+</body>
+
+</html>
