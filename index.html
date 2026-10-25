@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Kupon A4 Massal (Ubah Warna Teks & Latar)</title>
+    <title>Free Generator Kupon </title>
     <!-- Library HTML2Canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -375,25 +375,25 @@
 
     <div class="main-layout">
         <div class="panel">
-            <h2>Generator Kupon Massal</h2>
+            <h2>Generator Kupon </h2>
 
             <div class="section-title">1. Informasi Acara</div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="inputLogo">Logo Lembaga/MI</label>
+                    <label for="inputLogo">Logo Lembaga/Instansi</label>
                     <input type="file" id="inputLogo" accept="image/*">
                 </div>
                 <div class="form-group">
-                    <label for="inputInstansi">Nama Lembaga</label>
-                    <input type="text" id="inputInstansi" value="MI MINHAJUL UNWAN">
+                    <label for="inputInstansi">Nama Lembaga/Instansi</label>
+                    <input type="text" id="inputInstansi" value="Nama Lembaga / Instansi">
                 </div>
                 <div class="form-group">
                     <label for="inputTitle">Nama Acara</label>
-                    <input type="text" id="inputTitle" value="JALAN SEHAT HARI SANTRI">
+                    <input type="text" id="inputTitle" value="Nama Acara / Kegiatan">
                 </div>
                 <div class="form-group">
                     <label for="inputSubtitle">Sub-Judul / Tema</label>
-                    <input type="text" id="inputSubtitle" value="Jihad Santri Jayakan Negeri">
+                    <input type="text" id="inputSubtitle" value="Sub-Judul / Tema Acara">
                 </div>
                 <div class="form-group">
                     <label for="inputDesc">Hadiah / Ketentuan</label>
@@ -401,7 +401,7 @@
                 </div>
                 <div class="form-group">
                     <label for="inputDate">Tanggal & Lokasi</label>
-                    <input type="text" id="inputDate" value="22 Okt 2026 | Halaman MI">
+                    <input type="text" id="inputDate" value="22 Okt 2026 | Lokasi Acara">
                 </div>
             </div>
             <div class="section-title">2. Generate Max 10.000 Kupon Undian</div>
@@ -433,9 +433,7 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-print" onclick="window.print()">🖨️ Cetak / Simpan ke PDF</button>
-                <button class="btn btn-download" onclick="downloadFirstPage()">📥 Download Halaman Pertama
-                    (PNG)</button>
+                <button class="btn btn-print" onclick="window.print()">🖨️ Cetak ke PDF</button>
             </div>
         </div>
 
@@ -456,7 +454,7 @@
         const inputTextColor = document.getElementById('inputTextColor');
         const previewContainer = document.getElementById('previewContainer');
 
-        let logoSrc = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='30' viewBox='0 0 80 30'%3E%3Crect width='80' height='30' fill='%23ffffff' opacity='0.3' rx='4'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-size='8' font-family='sans-serif'%3ELOGO MI%3C/text%3E%3C/svg%3E";
+        let logoSrc = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='30' viewBox='0 0 80 30'%3E%3Crect width='80' height='30' fill='%23ffffff' opacity='0.3' rx='4'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-size='8' font-family='sans-serif'%3ELOGO %3C/text%3E%3C/svg%3E";
 
         function renderAllPages() {
             previewContainer.innerHTML = '';
