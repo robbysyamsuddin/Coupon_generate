@@ -7,6 +7,8 @@
     <title>Free Generator Kupon </title>
     <!-- Library HTML2Canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Library jsPDF untuk Export PDF Langsung -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="icon" type="image/x-icon" href="icon/20.png">
     <style>
         :root {
@@ -133,6 +135,14 @@
             background-color: #047857;
         }
 
+        .btn-pdf {
+            background-color: #ef4444;
+        }
+
+        .btn-pdf:hover {
+            background-color: #dc2626;
+        }
+
         .btn-download {
             background-color: #0284c7;
         }
@@ -162,28 +172,29 @@
             width: 210mm;
             height: 297mm;
             background: white;
-            padding: 6mm 5mm;
+            padding: 8mm 6mm;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 52mm);
             gap: 3mm 4mm;
             box-sizing: border-box;
             page-break-after: always;
+            break-after: page;
         }
 
-        /* 1 Blok Kotak Kupon Medium */
+        /* 1 Blok Kotak Kupon Medium (Tinggi pas 52mm) */
         .coupon-block {
             border: 1px dashed #9ca3af;
             border-radius: 5px;
             display: flex;
-            color: #ffffff;
-            /* Default warna teks */
             overflow: hidden;
             position: relative;
-            height: 54mm;
+            height: 52mm;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .coupon-main {
@@ -358,8 +369,9 @@
                 margin: 0;
                 width: 210mm;
                 height: 297mm;
-                padding: 5mm;
+                padding: 8mm 6mm;
                 page-break-after: always;
+                break-after: page;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -376,7 +388,7 @@
 
     <div class="main-layout">
         <div class="panel">
-            <h2>Generator Kupon </h2>
+            <h2>Generator Kupon Massal</h2>
 
             <div class="section-title">1. Informasi Acara</div>
             <div class="form-grid">
@@ -386,15 +398,15 @@
                 </div>
                 <div class="form-group">
                     <label for="inputInstansi">Nama Lembaga/Instansi</label>
-                    <input type="text" id="inputInstansi" value="Nama Lembaga / Instansi">
+                    <input type="text" id="inputInstansi" value=" Nama Lembaga / Instansi">
                 </div>
                 <div class="form-group">
                     <label for="inputTitle">Nama Acara</label>
-                    <input type="text" id="inputTitle" value="Nama Acara / Kegiatan">
+                    <input type="text" id="inputTitle" value="contoh hari santri nasional">
                 </div>
                 <div class="form-group">
                     <label for="inputSubtitle">Sub-Judul / Tema</label>
-                    <input type="text" id="inputSubtitle" value="Sub-Judul / Tema Acara">
+                    <input type="text" id="inputSubtitle" value="contoh tema: santri sehat, indonesia kuat">
                 </div>
                 <div class="form-group">
                     <label for="inputDesc">Hadiah / Ketentuan</label>
@@ -402,14 +414,15 @@
                 </div>
                 <div class="form-group">
                     <label for="inputDate">Tanggal & Lokasi</label>
-                    <input type="text" id="inputDate" value="22 Okt 2026 | Lokasi Acara">
+                    <input type="text" id="inputDate" value="22 Oktober 2026 | Halaman Masjid Agung">
                 </div>
             </div>
-            <div class="section-title">2. Generate Max 10.000 Kupon Undian</div>
+
+            <div class="section-title">2. Generate (Max 1000)</div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="inputTotalCoupons">Total Kupon Dicetak (Maks 10000)</label>
-                    <input type="number" id="inputTotalCoupons" value="100" min="1" max="10000" step="10">
+                    <label for="inputTotalCoupons">Total Kupon Dicetak (Maks 1000)</label>
+                    <input type="number" id="inputTotalCoupons" value="100" min="1" max="1000" step="10">
                 </div>
                 <div class="form-group">
                     <label for="inputStartNo">No. Awal</label>
@@ -421,7 +434,7 @@
                 </div>
             </div>
 
-            <div class="section-title">3. Warna Kupon</div>
+            <div class="section-title">3. Warna Kupon & Teks</div>
             <div class="form-grid">
                 <div class="form-group">
                     <label for="inputBgColor">Warna Latar Kupon</label>
@@ -434,7 +447,7 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-print" onclick="window.print()">🖨️ Cetak ke PDF</button>
+                <button class="btn btn-pdf" onclick="generatePDF()">📥 Cetak PDF</button>
             </div>
         </div>
 
@@ -461,7 +474,7 @@
             previewContainer.innerHTML = '';
 
             let total = parseInt(inputTotalCoupons.value) || 10;
-            if (total > 10000) total = 10000;
+            if (total > 1000) total = 1000;
 
             const startNum = parseInt(inputStartNo.value) || 1;
             const prefix = inputPrefix.value || 'No. ';
@@ -491,7 +504,6 @@
 
                     const block = document.createElement('div');
                     block.className = 'coupon-block';
-                    // Terapkan warna background dan warna text secara langsung
                     block.style.backgroundColor = chosenBgColor;
                     block.style.color = chosenTextColor;
 
@@ -559,6 +571,52 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // Fungsi Generate PDF Massal menggunakan jsPDF
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const pages = document.querySelectorAll('.a4-page');
+
+            if (pages.length === 0) {
+                alert("Belum ada kupon yang digenerate!");
+                return;
+            }
+
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const btnPdf = document.querySelector('.btn-pdf');
+            const originalText = btnPdf.innerText;
+            btnPdf.innerText = "⏳ Sedang memproses PDF...";
+            btnPdf.disabled = true;
+
+            try {
+                for (let i = 0; i < pages.length; i++) {
+                    const pageElement = pages[i];
+
+                    const canvas = await html2canvas(pageElement, {
+                        scale: 2,
+                        backgroundColor: '#ffffff',
+                        useCORS: true
+                    });
+
+                    const imgData = canvas.toDataURL('image/png');
+
+                    if (i > 0) {
+                        pdf.addPage();
+                    }
+
+                    pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+                }
+
+                pdf.save(`Kupon_Undian_${inputStartNo.value}_sampai_${parseInt(inputStartNo.value) + parseInt(inputTotalCoupons.value) - 1}.pdf`);
+
+            } catch (error) {
+                console.error("Gagal membuat PDF:", error);
+                alert("Terjadi kesalahan saat membuat file PDF.");
+            } finally {
+                btnPdf.innerText = originalText;
+                btnPdf.disabled = false;
+            }
+        }
 
         function downloadFirstPage() {
             const firstPage = document.querySelector('.a4-page');
